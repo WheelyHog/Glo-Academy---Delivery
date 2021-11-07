@@ -24,6 +24,7 @@ const logout = () => {
     userName.textContent = ''
 
     localStorage.removeItem('user')
+    localStorage.removeItem('restaurant')
 }
 
 buttonAuth.addEventListener('click', () => {
