@@ -1,19 +1,20 @@
-const cardsRestaurants = document.querySelector('.cards-restaurants')
+const partners = () => {
+    const cardsRestaurants = document.querySelector('.cards-restaurants')
 
 
-const renderItems = (data) => {
-    data.forEach((item) => {
-        const { image, kitchen, name, price, products, stars, time_of_delivery } = item
-        const a = document.createElement('a')
+    const renderItems = (data) => {
+        data.forEach((item) => {
+            const { image, kitchen, name, price, products, stars, time_of_delivery } = item
+            const a = document.createElement('a')
 
 
-        a.setAttribute('href', '/restaurant.html')
-        a.classList.add('card')
-        a.classList.add('card-restaurant')
-        a.dataset.products = products
-        //console.log(a.dataset.products);
+            a.setAttribute('href', '/restaurant.html')
+            a.classList.add('card')
+            a.classList.add('card-restaurant')
+            a.dataset.products = products
+            //console.log(a.dataset.products);
 
-        a.innerHTML = `
+            a.innerHTML = `
         <img src="${image}" alt="${name}" class="card-image" />
                         <div class="card-text">
                             <div class="card-heading">
@@ -32,33 +33,37 @@ const renderItems = (data) => {
                         </div>
                 	
         `
-        a.addEventListener('click', (e) => {
+            a.addEventListener('click', (e) => {
 
-            if (localStorage.user) {
-                e.preventDefault()
+                if (localStorage.user) {
+                    e.preventDefault()
 
-                localStorage.setItem('restaurant', JSON.stringify(item))
+                    localStorage.setItem('restaurant', JSON.stringify(item))
 
-                window.location.href = '/restaurant.html'
-            } else {
-                e.preventDefault()
-                modalAuth.style.display = 'flex'
+                    window.location.href = '/restaurant.html'
+                } else {
+                    e.preventDefault()
+                    modalAuth.style.display = 'flex'
+                }
+
+
             }
 
+            )
+            cardsRestaurants.append(a)
+        })
 
-        }
+    }
 
-        )
-        cardsRestaurants.append(a)
-    })
+    fetch('https://delivery-test-5d47e-default-rtdb.firebaseio.com/db/partners.json')
+        .then((response) => response.json())
+        .then((data) => {
+            renderItems(data)
+        })
+        .catch((error) => {
+            console.log(error)
+        })
 
 }
 
-fetch('https://delivery-test-5d47e-default-rtdb.firebaseio.com/db/partners.json')
-    .then((response) => response.json())
-    .then((data) => {
-        renderItems(data)
-    })
-    .catch((error) => {
-        console.log(error)
-    })
+partners()

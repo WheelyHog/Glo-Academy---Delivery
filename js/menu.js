@@ -1,38 +1,57 @@
+const menu = () => {
 
-const cardsMenu = document.querySelector('.cards-menu')
+    const cardsMenu = document.querySelector('.cards-menu')
 
-const changeTitle = (restaurant) => {
-    const restaurantTitle = document.querySelector('.restaurant-title')
+    const cartArray = localStorage.getItem('cart') ?
+        JSON.parse(localStorage.getItem('cart')) :
+        []
 
-    restaurantTitle.textContent = restaurant.name
-}
+    const changeTitle = (restaurant) => {
+        const restaurantTitle = document.querySelector('.restaurant-title')
 
-const changeRating = (restaurant) => {
-    const restaurantRating = document.querySelector('.rating')
+        restaurantTitle.textContent = restaurant.name
+    }
 
-    restaurantRating.textContent = restaurant.stars
-}
+    const changeRating = (restaurant) => {
+        const restaurantRating = document.querySelector('.rating')
 
-const changePrice = (restaurant) => {
-    const restaurantPrice = document.querySelector('.price')
+        restaurantRating.textContent = restaurant.stars
+    }
 
-    restaurantPrice.textContent = ('От ' + restaurant.price + ' ₽')
-}
+    const changePrice = (restaurant) => {
+        const restaurantPrice = document.querySelector('.price')
 
-const changeCategory = (restaurant) => {
-    const restaurantCategory = document.querySelector('.category')
+        restaurantPrice.textContent = ('От ' + restaurant.price + ' ₽')
+    }
 
-    restaurantCategory.textContent = restaurant.kitchen
-}
+    const changeCategory = (restaurant) => {
+        const restaurantCategory = document.querySelector('.category')
+
+        restaurantCategory.textContent = restaurant.kitchen
+    }
+
+    const addToCart = (cartItem) => {
+        if (cartArray.some((item) => item.id === cartItem.id)) {
+            cartArray.map((item => {
+                if (item.id === cartItem.id) {
+                    item.count++
+                }
+                return item
+            }))
+        } else {
+            cartArray.push(cartItem)
+        }
+        localStorage.setItem('cart', JSON.stringify(cartArray))
+    }
 
 
-const renderItems = (data) => {
-    data.forEach(({ description, id, image, name, price }) => {
-        const card = document.createElement('div')
+    const renderItems = (data) => {
+        data.forEach(({ description, id, image, name, price }) => {
+            const card = document.createElement('div')
 
-        card.classList.add('card')
+            card.classList.add('card')
 
-        card.innerHTML = `
+            card.innerHTML = `
         <img src="${image}" alt="${name}" class="card-image" />
 						<div class="card-text">
 							<div class="card-heading">
@@ -55,30 +74,38 @@ const renderItems = (data) => {
 						</div>
         `
 
-        cardsMenu.append(card)
-    });
+            card.querySelector('.button-card-text').addEventListener('click', () => {
+                addToCart({ name, price, id, count: 1 })
+            })
+
+            cardsMenu.append(card)
+        });
+
+    }
+
+    if (localStorage.getItem('restaurant')) {
+        const restaurant = JSON.parse(localStorage.getItem('restaurant'))
+
+        changeTitle(restaurant)
+        changeRating(restaurant)
+        changePrice(restaurant)
+        changeCategory(restaurant)
+
+
+        fetch(`./db/${restaurant.products}`)
+            .then((response) => response.json())
+            .then((data) => {
+                renderItems(data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    } else {
+        window.location.href = '/'
+    }
+
+
 
 }
 
-if (localStorage.getItem('restaurant')) {
-    const restaurant = JSON.parse(localStorage.getItem('restaurant'))
-
-    changeTitle(restaurant)
-    changeRating(restaurant)
-    changePrice(restaurant)
-    changeCategory(restaurant)
-
-
-    fetch(`./db/${restaurant.products}`)
-        .then((response) => response.json())
-        .then((data) => {
-            renderItems(data)
-        })
-        .catch((error) => {
-            console.log(error)
-        })
-} else {
-    window.location.href = '/'
-}
-
-
+menu()
